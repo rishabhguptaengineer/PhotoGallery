@@ -1,24 +1,148 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="13122.16" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="BYZ-38-t0r">
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="23504" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="nav-vc-001">
     <dependencies>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="13104.12"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="23502"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="System colors in document" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
-        <!--View Controller-->
-        <scene sceneID="tne-QT-ifu">
+
+        <!-- Navigation Controller -->
+        <scene sceneID="scene-nav-001">
             <objects>
-                <viewController id="BYZ-38-t0r" customClass="ViewController" customModuleProvider="target" sceneMemberID="viewController">
-                    <view key="view" contentMode="scaleToFill" id="8bC-Xf-vdC">
+                <navigationController id="nav-vc-001" sceneMemberID="viewController">
+                    <navigationBar key="navigationBar" contentMode="scaleToFill" id="nav-bar-001">
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="44"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                    </navigationBar>
+                    <connections>
+                        <segue destination="list-vc-001" kind="relationship" relationship="rootViewController" id="segue-nav-root"/>
+                    </connections>
+                </navigationController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="fr-nav-001" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="-600" y="100"/>
+        </scene>
+
+        <!-- Photo List View Controller -->
+        <scene sceneID="scene-list-001">
+            <objects>
+                <viewController id="list-vc-001" customClass="PhotoListViewController" customModule="PhotoGallery" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="list-view-001">
                         <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                        <color key="backgroundColor" xcode11CocoaTouchSystemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
-                        <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
+                        <subviews>
+                            <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="88" estimatedRowHeight="88" translatesAutoresizingMaskIntoConstraints="NO" id="list-tv-001">
+                                <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                                <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                            </tableView>
+                        </subviews>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                        <viewLayoutGuide key="safeArea" id="list-safe-001"/>
+                        <constraints>
+                            <constraint firstItem="list-tv-001" firstAttribute="top" secondItem="list-safe-001" secondAttribute="top" id="list-c-top"/>
+                            <constraint firstItem="list-tv-001" firstAttribute="leading" secondItem="list-safe-001" secondAttribute="leading" id="list-c-lead"/>
+                            <constraint firstItem="list-safe-001" firstAttribute="trailing" secondItem="list-tv-001" secondAttribute="trailing" id="list-c-trail"/>
+                            <constraint firstItem="list-safe-001" firstAttribute="bottom" secondItem="list-tv-001" secondAttribute="bottom" id="list-c-bot"/>
+                        </constraints>
                     </view>
+                    <navigationItem key="navigationItem" title="Photos" id="list-nav-item-001"/>
+                    <connections>
+                        <outlet property="tableView" destination="list-tv-001" id="outlet-list-tv"/>
+                        <segue destination="detail-vc-001" kind="show" identifier="ShowPhotoDetail" id="segue-show-detail"/>
+                    </connections>
                 </viewController>
-                <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="fr-list-001" sceneMemberID="firstResponder"/>
             </objects>
+            <point key="canvasLocation" x="50" y="100"/>
         </scene>
+
+        <!-- Photo Detail View Controller -->
+        <scene sceneID="scene-detail-001">
+            <objects>
+                <viewController id="detail-vc-001" customClass="PhotoDetailViewController" customModule="PhotoGallery" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="detail-view-001">
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <scrollView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="detail-sv-001">
+                                <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                                <subviews>
+                                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="detail-content-001">
+                                        <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                                        <subviews>
+                                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" translatesAutoresizingMaskIntoConstraints="NO" id="detail-img-001">
+                                                <rect key="frame" x="16" y="20" width="343" height="220"/>
+                                                <color key="backgroundColor" systemColor="secondarySystemBackgroundColor"/>
+                                            </imageView>
+                                            <textField opaque="NO" contentMode="scaleToFill" borderStyle="roundedRect" placeholder="Photo title" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="detail-tf-001">
+                                                <rect key="frame" x="16" y="260" width="343" height="34"/>
+                                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                                <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
+                                            </textField>
+                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="detail-save-btn">
+                                                <rect key="frame" x="16" y="314" width="343" height="44"/>
+                                                <state key="normal" title="Save"/>
+                                            </button>
+                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="detail-del-btn">
+                                                <rect key="frame" x="16" y="374" width="343" height="44"/>
+                                                <state key="normal" title="Delete"/>
+                                            </button>
+                                        </subviews>
+                                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                                        <constraints>
+                                            <constraint firstItem="detail-img-001" firstAttribute="top" secondItem="detail-content-001" secondAttribute="top" constant="20" id="d-c1"/>
+                                            <constraint firstItem="detail-img-001" firstAttribute="leading" secondItem="detail-content-001" secondAttribute="leading" constant="16" id="d-c2"/>
+                                            <constraint firstItem="detail-content-001" firstAttribute="trailing" secondItem="detail-img-001" secondAttribute="trailing" constant="16" id="d-c3"/>
+                                            <constraint firstItem="detail-img-001" firstAttribute="height" secondAttribute="notAnAttribute" constant="220" id="d-c4"/>
+                                            <constraint firstItem="detail-tf-001" firstAttribute="top" secondItem="detail-img-001" secondAttribute="bottom" constant="20" id="d-c5"/>
+                                            <constraint firstItem="detail-tf-001" firstAttribute="leading" secondItem="detail-content-001" secondAttribute="leading" constant="16" id="d-c6"/>
+                                            <constraint firstItem="detail-content-001" firstAttribute="trailing" secondItem="detail-tf-001" secondAttribute="trailing" constant="16" id="d-c7"/>
+                                            <constraint firstItem="detail-save-btn" firstAttribute="top" secondItem="detail-tf-001" secondAttribute="bottom" constant="20" id="d-c8"/>
+                                            <constraint firstItem="detail-save-btn" firstAttribute="leading" secondItem="detail-content-001" secondAttribute="leading" constant="16" id="d-c9"/>
+                                            <constraint firstItem="detail-content-001" firstAttribute="trailing" secondItem="detail-save-btn" secondAttribute="trailing" constant="16" id="d-c10"/>
+                                            <constraint firstItem="detail-save-btn" firstAttribute="height" secondAttribute="notAnAttribute" constant="44" id="d-c11"/>
+                                            <constraint firstItem="detail-del-btn" firstAttribute="top" secondItem="detail-save-btn" secondAttribute="bottom" constant="16" id="d-c12"/>
+                                            <constraint firstItem="detail-del-btn" firstAttribute="leading" secondItem="detail-content-001" secondAttribute="leading" constant="16" id="d-c13"/>
+                                            <constraint firstItem="detail-content-001" firstAttribute="trailing" secondItem="detail-del-btn" secondAttribute="trailing" constant="16" id="d-c14"/>
+                                            <constraint firstItem="detail-del-btn" firstAttribute="height" secondAttribute="notAnAttribute" constant="44" id="d-c15"/>
+                                            <constraint firstItem="detail-content-001" firstAttribute="bottom" secondItem="detail-del-btn" secondAttribute="bottom" constant="20" id="d-c16"/>
+                                        </constraints>
+                                    </view>
+                                </subviews>
+                                <constraints>
+                                    <constraint firstItem="detail-content-001" firstAttribute="top" secondItem="detail-sv-001" secondAttribute="top" id="sv-c1"/>
+                                    <constraint firstItem="detail-content-001" firstAttribute="leading" secondItem="detail-sv-001" secondAttribute="leading" id="sv-c2"/>
+                                    <constraint firstItem="detail-sv-001" firstAttribute="trailing" secondItem="detail-content-001" secondAttribute="trailing" id="sv-c3"/>
+                                    <constraint firstItem="detail-sv-001" firstAttribute="bottom" secondItem="detail-content-001" secondAttribute="bottom" id="sv-c4"/>
+                                    <constraint firstItem="detail-content-001" firstAttribute="width" secondItem="detail-sv-001" secondAttribute="width" id="sv-c5"/>
+                                </constraints>
+                            </scrollView>
+                        </subviews>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                        <viewLayoutGuide key="safeArea" id="detail-safe-001"/>
+                        <constraints>
+                            <constraint firstItem="detail-sv-001" firstAttribute="top" secondItem="detail-safe-001" secondAttribute="top" id="root-c1"/>
+                            <constraint firstItem="detail-sv-001" firstAttribute="leading" secondItem="detail-safe-001" secondAttribute="leading" id="root-c2"/>
+                            <constraint firstItem="detail-safe-001" firstAttribute="trailing" secondItem="detail-sv-001" secondAttribute="trailing" id="root-c3"/>
+                            <constraint firstItem="detail-safe-001" firstAttribute="bottom" secondItem="detail-sv-001" secondAttribute="bottom" id="root-c4"/>
+                        </constraints>
+                    </view>
+                    <navigationItem key="navigationItem" title="Photo Detail" id="detail-nav-item-001"/>
+                    <connections>
+                        <outlet property="imageView" destination="detail-img-001" id="outlet-detail-img"/>
+                        <outlet property="titleTextField" destination="detail-tf-001" id="outlet-detail-tf"/>
+                        <outlet property="saveButton" destination="detail-save-btn" id="outlet-detail-save"/>
+                        <outlet property="deleteButton" destination="detail-del-btn" id="outlet-detail-del"/>
+                        <action selector="saveButtonTapped:" destination="detail-save-btn" eventType="touchUpInside" id="action-save"/>
+                        <action selector="deleteButtonTapped:" destination="detail-del-btn" eventType="touchUpInside" id="action-delete"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="fr-detail-001" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="700" y="100"/>
+        </scene>
+
     </scenes>
 </document>
