@@ -20,8 +20,7 @@ final class PhotoListViewController: UIViewController {
         let container = AppDependencyContainer.shared
         viewModel = PhotoListViewModel(
             apiService: container.apiService,
-            persistenceManager: container.coreDataManager,
-            imageCacheManager: container.imageCacheManager
+            persistenceManager: container.coreDataManager
         )
     }
 
