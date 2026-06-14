@@ -14,7 +14,7 @@ import UIKit
 /// - Thumbnail images are stored in Core Data and are never routed through this cache.
 ///
 /// Thread Safety:
-/// - Implemented as a Swift `actor`. All mutable state (`runningTasks`) is automatically
+/// - All mutable state (`runningTasks`) is automatically
 ///   serialised by Swift Concurrency — no manual locking required.
 /// - `NSCache` is thread-safe per Apple's documentation.
 final class ImageCacheManager: ImageCacheManaging {
