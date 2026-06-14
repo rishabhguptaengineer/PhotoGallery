@@ -1,8 +1,10 @@
 import Foundation
 
+// MARK: - Photo
+
 struct Photo {
-    let id: Int64
-    let albumId: Int64
+    let id: Int
+    let albumId: Int
     var title: String
     let url: String
     let thumbnailUrl: String

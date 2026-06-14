@@ -1,11 +1,15 @@
 import Foundation
 
+// MARK: - PhotoDTO
+
 struct PhotoDTO: Codable {
-    let id: Int64
-    let albumId: Int64
+    let id: Int
+    let albumId: Int
     let title: String
     let url: String
     let thumbnailUrl: String
+
+    // MARK: Mapping
 
     func toDomain() -> Photo {
         Photo(
