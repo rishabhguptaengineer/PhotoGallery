@@ -49,7 +49,8 @@ final class PhotoDetailViewController: UIViewController {
         let container = AppDependencyContainer.shared
         viewModel = PhotoDetailViewModel(
             photo: photo,
-            persistenceManager: container.coreDataManager
+            persistenceManager: container.coreDataManager,
+            imageCacheManager: container.imageCacheManager
         )
 
         // Forward ViewModel callbacks to the parent screen.
@@ -104,10 +105,10 @@ final class PhotoDetailViewController: UIViewController {
         imageActivityIndicator.startAnimating()
         Task { [weak self] in
             guard let self else { return }
-            let data = await self.viewModel.downloadFullImage()
+            let image = await self.viewModel.loadFullImage()
             await MainActor.run {
                 self.imageActivityIndicator.stopAnimating()
-                if let data, let image = UIImage(data: data) {
+                if let image {
                     self.imageView.image = image
                 }
             }

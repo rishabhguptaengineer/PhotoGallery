@@ -9,7 +9,7 @@ enum PlaceholderURLHelper {
 
     /// Rewrites a `via.placeholder.com` URL to a working `placehold.co` URL,
     /// enforcing the `/<bg>/<fg>.png` suffix that the service requires.
-    static func correctedURL(from urlString: String) -> URL? {
+    nonisolated static func correctedURL(from urlString: String) -> URL? {
         var corrected = urlString.replacingOccurrences(of: "via.placeholder.com", with: "placehold.co")
         if !corrected.hasSuffix(".png") {
             corrected += "/ffffff.png"

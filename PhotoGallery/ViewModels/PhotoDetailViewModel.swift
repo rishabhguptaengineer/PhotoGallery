@@ -1,11 +1,13 @@
-import Foundation
+import UIKit
+
+// MARK: - PhotoDetailViewModel
 
 final class PhotoDetailViewModel {
 
     // MARK: - Dependencies
 
     private let persistenceManager: CoreDataManaging
-    private let session: URLSession
+    private let imageCacheManager: ImageCacheManaging
 
     // MARK: - Properties
 
@@ -19,29 +21,29 @@ final class PhotoDetailViewModel {
     init(
         photo: Photo,
         persistenceManager: CoreDataManaging,
-        session: URLSession = .shared
+        imageCacheManager: ImageCacheManaging
     ) {
         self.photo = photo
         self.persistenceManager = persistenceManager
-        self.session = session
+        self.imageCacheManager = imageCacheManager
     }
 
     // MARK: - Full Image Loading
 
-    /// Downloads the full-size image data using async/await.
-    /// Does not save the full-size image to Core Data.
-    func downloadFullImage() async -> Data? {
-        guard let url = PlaceholderURLHelper.correctedURL(from: photo.url) else { return nil }
-        do {
-            let (data, response) = try await session.data(from: url)
-            guard
-                let http = response as? HTTPURLResponse,
-                (200...299).contains(http.statusCode)
-            else { return nil }
-            return data
-        } catch {
-            return nil
-        }
+    /// Returns the full-size image for the current photo.
+    ///
+    /// Lookup order:
+    /// 1. **Cache hit** — `ImageCacheManager` holds the image from a previous visit this session.
+    ///    Returned synchronously with no network request.
+    /// 2. **Cache miss** — `ImageCacheManager` downloads the image, stores it in `NSCache`,
+    ///    and returns it. If an identical request is already in-flight (e.g. the user opens
+    ///    and closes the same photo rapidly), the existing task is awaited instead of
+    ///    starting a duplicate network request.
+    ///
+    /// Full-size images are never written to Core Data. They are held in-memory for
+    /// the session only, keeping the Core Data store lean.
+    func loadFullImage() async -> UIImage? {
+        await imageCacheManager.loadImage(from: photo.url)
     }
 
     // MARK: - Save Title
@@ -53,13 +55,8 @@ final class PhotoDetailViewModel {
             throw AppError.saveFailed(reason: "Title cannot be empty.")
         }
 
-        // Update database
         try persistenceManager.updateTitle(photoId: photo.id, title: trimmed)
-
-        // Update local state
         photo.title = trimmed
-
-        // Notify parent screen
         onPhotoUpdated?(photo)
     }
 
