@@ -2,7 +2,7 @@ import Foundation
 
 // MARK: - PhotoDTO
 
-struct PhotoDTO: Codable {
+struct PhotoDTO: Codable, Sendable {
 
     let id: Int
     let albumId: Int
@@ -23,7 +23,7 @@ struct PhotoDTO: Codable {
     // MARK: - Mapping
 
     /// Converts the DTO to a domain Photo, optionally attaching downloaded thumbnail data.
-    func toDomain(thumbnailData: Data? = nil) -> Photo {
+    nonisolated func toDomain(thumbnailData: Data? = nil) -> Photo {
         Photo(
             id: id,
             albumId: albumId,

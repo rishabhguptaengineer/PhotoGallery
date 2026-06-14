@@ -1,5 +1,7 @@
 import UIKit
 
+// MARK: - PhotoDetailViewController
+
 final class PhotoDetailViewController: UIViewController {
 
     // MARK: - IBOutlets
@@ -9,7 +11,7 @@ final class PhotoDetailViewController: UIViewController {
     @IBOutlet weak var saveButton: UIButton!
     @IBOutlet weak var deleteButton: UIButton!
 
-    // MARK: - Properties
+    // MARK: - Private Properties
 
     private var viewModel: PhotoDetailViewModel!
     private var initialPhoto: Photo?
@@ -21,9 +23,12 @@ final class PhotoDetailViewController: UIViewController {
         return indicator
     }()
 
-    // MARK: - Callback Hooks
+    // MARK: - Callbacks
 
+    /// Called when the user successfully edits the photo title.
     var onPhotoUpdated: ((Photo) -> Void)?
+
+    /// Called when the user deletes the photo (passes the deleted photo's id).
     var onPhotoDeleted: ((Int) -> Void)?
 
     // MARK: - Lifecycle
@@ -39,7 +44,7 @@ final class PhotoDetailViewController: UIViewController {
 
     private func setupViewModel() {
         guard let photo = initialPhoto else {
-            fatalError("Photo must be configured before viewDidLoad")
+            fatalError("PhotoDetailViewController: configure(with:) must be called before the view loads.")
         }
         let container = AppDependencyContainer.shared
         viewModel = PhotoDetailViewModel(
@@ -47,7 +52,7 @@ final class PhotoDetailViewController: UIViewController {
             persistenceManager: container.coreDataManager
         )
 
-        // Bind callbacks to pass updates to parent screen
+        // Forward ViewModel callbacks to the parent screen.
         viewModel.onPhotoUpdated = { [weak self] updatedPhoto in
             self?.onPhotoUpdated?(updatedPhoto)
         }
@@ -63,7 +68,6 @@ final class PhotoDetailViewController: UIViewController {
         imageView.clipsToBounds = true
         titleTextField.borderStyle = .roundedRect
 
-        // Add activity indicator over image view
         view.addSubview(imageActivityIndicator)
         NSLayoutConstraint.activate([
             imageActivityIndicator.centerXAnchor.constraint(equalTo: imageView.centerXAnchor),
@@ -73,8 +77,8 @@ final class PhotoDetailViewController: UIViewController {
 
     // MARK: - Public API
 
-    /// Configures the controller with a Photo.
-    /// Safe to call before or after the view has loaded.
+    /// Passes the selected photo to this controller.
+    /// Safe to call before or after the view loads.
     func configure(with photo: Photo) {
         initialPhoto = photo
         if isViewLoaded {
@@ -89,7 +93,7 @@ final class PhotoDetailViewController: UIViewController {
         guard let photo = viewModel?.photo else { return }
         titleTextField.text = photo.title
 
-        // Show offline thumbnail first as immediate placeholder
+        // Immediately display the cached thumbnail while the full image loads.
         if let data = photo.thumbnailData {
             imageView.image = UIImage(data: data)
         } else {
@@ -98,27 +102,20 @@ final class PhotoDetailViewController: UIViewController {
         }
 
         imageActivityIndicator.startAnimating()
-
-        // Asynchronously load the full-size image
         Task { [weak self] in
-            guard let self = self else { return }
-            let fullImageData = await self.viewModel.downloadFullImage()
-            
+            guard let self else { return }
+            let data = await self.viewModel.downloadFullImage()
             await MainActor.run {
                 self.imageActivityIndicator.stopAnimating()
-                if let data = fullImageData, let fullImage = UIImage(data: data) {
-                    self.imageView.image = fullImage
+                if let data, let image = UIImage(data: data) {
+                    self.imageView.image = image
                 }
             }
         }
     }
 
-    private func showErrorAlert(message: String) {
-        let alert = UIAlertController(
-            title: "Error",
-            message: message,
-            preferredStyle: .alert
-        )
+    private func presentAlert(title: String, message: String) {
+        let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: "OK", style: .default))
         present(alert, animated: true)
     }
@@ -128,7 +125,7 @@ final class PhotoDetailViewController: UIViewController {
             try viewModel.deletePhoto()
             navigationController?.popViewController(animated: true)
         } catch {
-            showErrorAlert(message: error.localizedDescription)
+            presentAlert(title: "Error", message: "Failed to delete the photo. Please try again.")
         }
     }
 
@@ -138,16 +135,11 @@ final class PhotoDetailViewController: UIViewController {
         guard let newTitle = titleTextField.text else { return }
         do {
             try viewModel.saveTitle(newTitle)
-            
-            let alert = UIAlertController(
-                title: "Success",
-                message: "Title updated successfully.",
-                preferredStyle: .alert
-            )
-            alert.addAction(UIAlertAction(title: "OK", style: .default))
-            present(alert, animated: true)
+            presentAlert(title: "Success", message: "Title updated successfully.")
+        } catch let appError as AppError {
+            presentAlert(title: "Unable to Save", message: appError.localizedDescription)
         } catch {
-            showErrorAlert(message: error.localizedDescription)
+            presentAlert(title: "Unable to Save", message: "Failed to save changes. Please try again.")
         }
     }
 
@@ -158,9 +150,9 @@ final class PhotoDetailViewController: UIViewController {
             preferredStyle: .alert
         )
         alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
-        alert.addAction(UIAlertAction(title: "Delete", style: .destructive, handler: { [weak self] _ in
+        alert.addAction(UIAlertAction(title: "Delete", style: .destructive) { [weak self] _ in
             self?.performDelete()
-        }))
+        })
         present(alert, animated: true)
     }
 }

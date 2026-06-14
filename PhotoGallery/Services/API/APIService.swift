@@ -95,12 +95,7 @@ private extension APIService {
     /// - Never throws — failures are silently swallowed and `nil` is returned,
     ///   so the photo pipeline continues even if a single thumbnail is unavailable.
     func downloadThumbnail(from urlString: String) async -> Data? {
-        var correctedUrlString = urlString.replacingOccurrences(of: "via.placeholder.com", with: "placehold.co")
-        if !correctedUrlString.hasSuffix(".png") {
-            correctedUrlString += "/ffffff.png"
-        }
-        
-        guard let url = URL(string: correctedUrlString) else { return nil }
+        guard let url = PlaceholderURLHelper.correctedURL(from: urlString) else { return nil }
         do {
             let (data, response) = try await session.data(from: url)
             guard

@@ -1,5 +1,4 @@
 import UIKit
-import CoreData
 
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
@@ -22,7 +21,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     func sceneWillEnterForeground(_ scene: UIScene) {}
 
     func sceneDidEnterBackground(_ scene: UIScene) {
-        // Save Core Data context on entering background if needed
-        try? CoreDataManager.shared.viewContext.save()
+        // Persist any unsaved Core Data changes when the app backgrounds.
+        try? AppDependencyContainer.shared.coreDataManager.saveContext()
     }
 }

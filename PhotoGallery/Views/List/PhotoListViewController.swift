@@ -20,12 +20,20 @@ final class PhotoListViewController: UIViewController {
     private let emptyStateLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.text = "No Photos Found"
+        label.text = "No Photos Available\nPull to Refresh to Try Again"
         label.textColor = .secondaryLabel
         label.font = .systemFont(ofSize: 18, weight: .medium)
         label.textAlignment = .center
+        label.numberOfLines = 0
         label.isHidden = true
         return label
+    }()
+
+    private let footerActivityIndicator: UIActivityIndicatorView = {
+        let indicator = UIActivityIndicatorView(style: .medium)
+        indicator.hidesWhenStopped = true
+        indicator.frame = CGRect(x: 0, y: 0, width: 320, height: 44)
+        return indicator
     }()
 
     private let refreshControl = UIRefreshControl()
@@ -96,6 +104,16 @@ final class PhotoListViewController: UIViewController {
                 self?.handleViewState(state)
             }
         }
+        viewModel.onNetworkError = { [weak self] message in
+            DispatchQueue.main.async {
+                self?.showOfflineAlert(message: message)
+            }
+        }
+        viewModel.onPaginationStateChanged = { [weak self] isFetching in
+            DispatchQueue.main.async {
+                self?.handlePaginationState(isFetching)
+            }
+        }
     }
 
     private func handleViewState(_ state: ViewState) {
@@ -134,6 +152,16 @@ final class PhotoListViewController: UIViewController {
         }
     }
 
+    private func handlePaginationState(_ isFetching: Bool) {
+        if isFetching {
+            tableView.tableFooterView = footerActivityIndicator
+            footerActivityIndicator.startAnimating()
+        } else {
+            footerActivityIndicator.stopAnimating()
+            tableView.tableFooterView = nil
+        }
+    }
+
     // MARK: - Actions
 
     @objc private func handleRefresh() {
@@ -143,6 +171,19 @@ final class PhotoListViewController: UIViewController {
     private func showErrorAlert(message: String) {
         let alert = UIAlertController(
             title: "Error",
+            message: message,
+            preferredStyle: .alert
+        )
+        alert.addAction(UIAlertAction(title: "OK", style: .default))
+        present(alert, animated: true)
+    }
+
+    private func showOfflineAlert(message: String) {
+        // Prevent duplicate alerts
+        guard presentedViewController == nil else { return }
+        
+        let alert = UIAlertController(
+            title: "Offline Mode",
             message: message,
             preferredStyle: .alert
         )
@@ -170,11 +211,6 @@ extension PhotoListViewController: UITableViewDataSource {
         let photo = viewModel.photos[indexPath.row]
         cell.configure(with: photo)
 
-        // Pagination check: Load next page when reaching the end of the list
-        if indexPath.row == viewModel.photos.count - 1 {
-            viewModel.loadNextPage()
-        }
-
         return cell
     }
 }
@@ -187,6 +223,17 @@ extension PhotoListViewController: UITableViewDelegate {
         tableView.deselectRow(at: indexPath, animated: true)
         let selectedPhoto = viewModel.photos[indexPath.row]
         performSegue(withIdentifier: "ShowPhotoDetail", sender: selectedPhoto)
+    }
+
+    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        let offsetY = scrollView.contentOffset.y
+        let contentHeight = scrollView.contentSize.height
+        let height = scrollView.frame.size.height
+
+        // Detect when user scrolls near the bottom of the list (within 100 points)
+        if offsetY > contentHeight - height - 100 {
+            viewModel.loadNextPage()
+        }
     }
 
     // MARK: - Navigation

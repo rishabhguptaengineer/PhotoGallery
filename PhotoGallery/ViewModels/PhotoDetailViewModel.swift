@@ -31,12 +31,7 @@ final class PhotoDetailViewModel {
     /// Downloads the full-size image data using async/await.
     /// Does not save the full-size image to Core Data.
     func downloadFullImage() async -> Data? {
-        var correctedUrlString = photo.url.replacingOccurrences(of: "via.placeholder.com", with: "placehold.co")
-        if !correctedUrlString.hasSuffix(".png") {
-            correctedUrlString += "/ffffff.png"
-        }
-
-        guard let url = URL(string: correctedUrlString) else { return nil }
+        guard let url = PlaceholderURLHelper.correctedURL(from: photo.url) else { return nil }
         do {
             let (data, response) = try await session.data(from: url)
             guard

@@ -127,4 +127,10 @@ extension CoreDataManager {
             throw AppError.coreDataError(error)
         }
     }
+
+    // MARK: Save Context
+
+    func saveContext() throws {
+        try saveContext(viewContext)
+    }
 }

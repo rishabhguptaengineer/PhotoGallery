@@ -1,5 +1,7 @@
 import UIKit
 
+// MARK: - PhotoTableViewCell
+
 final class PhotoTableViewCell: UITableViewCell {
 
     // MARK: - Constants
@@ -11,7 +13,7 @@ final class PhotoTableViewCell: UITableViewCell {
     @IBOutlet weak var thumbnailImageView: UIImageView!
     @IBOutlet weak var titleLabel: UILabel!
 
-    // MARK: - Properties
+    // MARK: - Private Properties
 
     private let activityIndicator: UIActivityIndicatorView = {
         let indicator = UIActivityIndicatorView(style: .medium)
@@ -46,7 +48,6 @@ final class PhotoTableViewCell: UITableViewCell {
         thumbnailImageView.layer.cornerRadius = 6
         thumbnailImageView.backgroundColor = .systemGray6
 
-        // Add activity indicator centered over the thumbnail image view
         addSubview(activityIndicator)
         NSLayoutConstraint.activate([
             activityIndicator.centerXAnchor.constraint(equalTo: thumbnailImageView.centerXAnchor),
@@ -56,62 +57,56 @@ final class PhotoTableViewCell: UITableViewCell {
 
     // MARK: - Configuration
 
-    /// Configures the cell contents. Uses cached thumbnail data from Core Data if present.
-    /// Otherwise, fetches the thumbnail asynchronously using async/await while showing the loader.
+    /// Configures the cell. Displays cached thumbnail data immediately if available,
+    /// otherwise falls back to an async download while showing an activity indicator.
     func configure(with photo: Photo) {
         titleLabel.text = photo.title
         thumbnailImageView.tintColor = .systemGray3
 
         if let data = photo.thumbnailData {
-            activityIndicator.stopAnimating()
             thumbnailImageView.image = UIImage(data: data)
         } else {
             thumbnailImageView.image = nil
             activityIndicator.startAnimating()
-
-            // Asynchronously load the thumbnail image if missing from local cache
             downloadTask = Task { [weak self] in
-                guard let self = self else { return }
-                var correctedUrlString = photo.thumbnailUrl.replacingOccurrences(of: "via.placeholder.com", with: "placehold.co")
-                if !correctedUrlString.hasSuffix(".png") {
-                    correctedUrlString += "/ffffff.png"
-                }
-
-                guard let url = URL(string: correctedUrlString) else {
-                    await MainActor.run {
-                        self.activityIndicator.stopAnimating()
-                        self.thumbnailImageView.image = UIImage(systemName: "photo")
-                    }
-                    return
-                }
-
-                do {
-                    let (data, response) = try await URLSession.shared.data(from: url)
-                    guard !Task.isCancelled else { return }
-
-                    guard
-                        let http = response as? HTTPURLResponse,
-                        (200...299).contains(http.statusCode)
-                    else {
-                        await MainActor.run {
-                            self.activityIndicator.stopAnimating()
-                            self.thumbnailImageView.image = UIImage(systemName: "photo")
-                        }
-                        return
-                    }
-
-                    await MainActor.run {
-                        self.activityIndicator.stopAnimating()
-                        self.thumbnailImageView.image = UIImage(data: data)
-                    }
-                } catch {
-                    guard !Task.isCancelled else { return }
-                    await MainActor.run {
-                        self.activityIndicator.stopAnimating()
-                        self.thumbnailImageView.image = UIImage(systemName: "photo")
-                    }
-                }
+                await self?.loadThumbnail(from: photo.thumbnailUrl)
             }
         }
+    }
+
+    // MARK: - Private Helpers
+
+    private func loadThumbnail(from urlString: String) async {
+        guard let url = PlaceholderURLHelper.correctedURL(from: urlString) else {
+            showPlaceholder()
+            return
+        }
+
+        do {
+            let (data, response) = try await URLSession.shared.data(from: url)
+            guard !Task.isCancelled else { return }
+
+            guard
+                let http = response as? HTTPURLResponse,
+                (200...299).contains(http.statusCode)
+            else {
+                showPlaceholder()
+                return
+            }
+
+            await MainActor.run { [weak self] in
+                self?.activityIndicator.stopAnimating()
+                self?.thumbnailImageView.image = UIImage(data: data)
+            }
+        } catch {
+            guard !Task.isCancelled else { return }
+            showPlaceholder()
+        }
+    }
+
+    @MainActor
+    private func showPlaceholder() {
+        activityIndicator.stopAnimating()
+        thumbnailImageView.image = UIImage(systemName: "photo")
     }
 }

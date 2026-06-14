@@ -2,7 +2,7 @@ import Foundation
 
 // MARK: - Photo
 
-struct Photo {
+struct Photo: Sendable {
     let id: Int
     let albumId: Int
     var title: String

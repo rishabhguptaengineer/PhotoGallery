@@ -18,4 +18,7 @@ protocol CoreDataManaging {
 
     /// Returns true if at least one photo record exists (uses a count request).
     func hasData() throws -> Bool
+
+    /// Persists any pending changes in the main context.
+    func saveContext() throws
 }

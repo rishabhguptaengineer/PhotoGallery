@@ -7,5 +7,4 @@ final class AppDependencyContainer {
 
     lazy var apiService: APIServiceProtocol = APIService()
     lazy var coreDataManager: CoreDataManaging = CoreDataManager.shared
-    lazy var imageCacheManager: ImageCacheManaging = ImageCacheManager.shared
 }
