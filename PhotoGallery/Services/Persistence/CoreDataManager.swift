@@ -66,8 +66,12 @@ extension CoreDataManager {
         let context = viewContext
         for photo in photos {
             if let existing = try fetchEntity(id: photo.id, in: context) {
-                // Update existing record
+                // Preserve the local title if it has been modified
+                let localTitle = existing.title
                 photo.populate(entity: existing)
+                if let localTitle = localTitle, !localTitle.isEmpty {
+                    existing.title = localTitle
+                }
             } else {
                 // Insert new record
                 let entity = PhotoEntity(context: context)

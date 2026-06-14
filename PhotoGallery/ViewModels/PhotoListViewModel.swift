@@ -112,6 +112,23 @@ final class PhotoListViewModel {
         }
     }
 
+    /// Updates a photo at a specific index in the local array (used when syncing detail updates).
+    func updatePhoto(at index: Int, with updatedPhoto: Photo) {
+        guard index >= 0 && index < photos.count else { return }
+        photos[index] = updatedPhoto
+    }
+
+    /// Removes a photo at a specific index from the local array (used when syncing detail deletes).
+    func removePhoto(at index: Int) {
+        guard index >= 0 && index < photos.count else { return }
+        photos.remove(at: index)
+        if photos.isEmpty {
+            state = .empty
+        } else {
+            state = .loaded
+        }
+    }
+
     // MARK: - Private Helpers
 
     private func fetchAndSavePhotos(page: Int) async {

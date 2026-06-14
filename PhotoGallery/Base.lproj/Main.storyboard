@@ -84,10 +84,16 @@
                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="detail-save-btn">
                                                 <rect key="frame" x="16" y="314" width="343" height="44"/>
                                                 <state key="normal" title="Save"/>
+                                                <connections>
+                                                    <action selector="saveButtonTapped:" destination="detail-vc-001" eventType="touchUpInside" id="action-save"/>
+                                                </connections>
                                             </button>
                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="detail-del-btn">
                                                 <rect key="frame" x="16" y="374" width="343" height="44"/>
                                                 <state key="normal" title="Delete"/>
+                                                <connections>
+                                                    <action selector="deleteButtonTapped:" destination="detail-vc-001" eventType="touchUpInside" id="action-delete"/>
+                                                </connections>
                                             </button>
                                         </subviews>
                                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
@@ -135,8 +141,6 @@
                         <outlet property="titleTextField" destination="detail-tf-001" id="outlet-detail-tf"/>
                         <outlet property="saveButton" destination="detail-save-btn" id="outlet-detail-save"/>
                         <outlet property="deleteButton" destination="detail-del-btn" id="outlet-detail-del"/>
-                        <action selector="saveButtonTapped:" destination="detail-save-btn" eventType="touchUpInside" id="action-save"/>
-                        <action selector="deleteButtonTapped:" destination="detail-del-btn" eventType="touchUpInside" id="action-delete"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="fr-detail-001" sceneMemberID="firstResponder"/>

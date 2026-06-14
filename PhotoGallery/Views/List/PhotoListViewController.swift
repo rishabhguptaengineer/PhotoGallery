@@ -195,7 +195,28 @@ extension PhotoListViewController: UITableViewDelegate {
         if segue.identifier == "ShowPhotoDetail",
            let detailVC = segue.destination as? PhotoDetailViewController,
            let photo = sender as? Photo {
+            
             detailVC.configure(with: photo)
+            
+            // Handle updates from detail screen
+            detailVC.onPhotoUpdated = { [weak self] updatedPhoto in
+                guard let self = self else { return }
+                if let index = self.viewModel.photos.firstIndex(where: { $0.id == updatedPhoto.id }) {
+                    self.viewModel.updatePhoto(at: index, with: updatedPhoto)
+                    let indexPath = IndexPath(row: index, section: 0)
+                    self.tableView.reloadRows(at: [indexPath], with: .automatic)
+                }
+            }
+            
+            // Handle deletion from detail screen
+            detailVC.onPhotoDeleted = { [weak self] deletedId in
+                guard let self = self else { return }
+                if let index = self.viewModel.photos.firstIndex(where: { $0.id == deletedId }) {
+                    self.viewModel.removePhoto(at: index)
+                    let indexPath = IndexPath(row: index, section: 0)
+                    self.tableView.deleteRows(at: [indexPath], with: .fade)
+                }
+            }
         }
     }
 }

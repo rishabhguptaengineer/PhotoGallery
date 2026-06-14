@@ -77,9 +77,6 @@
 				9192A8762FDD9EC2007A6308 /* PhotoGallery */,
 			);
 			name = PhotoGallery;
-			packageProductDependencies = (
-				2D7FF29839DF44654EE7258F /* SDWebImage */,
-			);
 			productName = PhotoGallery;
 			productReference = 9192A8742FDD9EC2007A6308 /* PhotoGallery.app */;
 			productType = "com.apple.product-type.application";
@@ -108,9 +105,6 @@
 			);
 			mainGroup = 9192A86B2FDD9EC2007A6308;
 			minimizedProjectReferenceProxies = 1;
-			packageReferences = (
-				BEEA7B195AF56B2B4357595A /* XCRemoteSwiftPackageReference "SDWebImage" */,
-			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 9192A8752FDD9EC2007A6308 /* Products */;
 			projectDirPath = "";
